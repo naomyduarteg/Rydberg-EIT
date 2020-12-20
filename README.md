@@ -1,1 +1,3 @@
 # Rydberg-EIT
+
+Nesses códigos, vamos calcular a absorção/transmissão de um feixe de laser em uma condição de transparência eletromagneticamente induzida de duas maneiras. A primeira vai usar a aproximação de feixe de acoplamento com frequência de Rabi muito alta, o que nos permite resolver as equações de Bloch analiticamente. A segunda vai usar as equações de Bloch na forma matricial, onde consideraremos uma matriz reduzida inversível para fazer o cálculo dos vetores de densidade de estado através da multiplicação de matrizes. Para a primeira maneira, também cálculamos a EIT usando um feixe Laguerre-Gauss.
