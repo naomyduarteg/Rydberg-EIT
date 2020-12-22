@@ -34,14 +34,19 @@ for i in range (-70*10**6, 70*10**6, 1*10**6):
     A = integrate.quad(lambda v: ((np.exp(-v**2/u**2)*8*N*kp*gammap*mu12**2)/(u*np.sqrt(np.pi)*epsilon0*hbar))*((i+deltac-kp*v+kc*v)**2/(4*gammap**2*(i+deltac-kp*v+kc*v)**2 + (omegac**2-4*(i-kp*v)*(i+deltac-kp*v+kc*v))**2)), -500, 500)
     #T_LG = integrate.quad(lambda t: np.exp(-B*(gammap*g**2 - g*i*(i + deltac) + g*(omegac*np.sqrt(2)*(t/w0)*np.exp(-(t/w0)**2))**2 + (i + deltac)*(i*g + gammap*(i + deltac)))/(2*((gammap*g - i*(i + deltac) + (omegac*np.sqrt(2)*(t/w0)*np.exp(-(t/w0)**2))**2)**2 + (i*g + gammap*(i + deltac))**2)))*t, 0, w0)
     result = np.exp(-A[0]*z)
-    #result = A[0]
-  
-
+ 
     #print(A)
     result_array = np.append(result_array, [result], axis=0)
+#------------------------------------------------------------FEIXE LG--------------------------------------------------------------------------
+for n in range (-70*10**6, 70*10**6, 1*10**6):
+    f = lambda v, r: r*((np.exp(-v**2/u**2)*8*N*kp*gammap*mu12**2)/(u*np.sqrt(np.pi)*epsilon0*hbar))*((n+deltac-kp*v+kc*v)**2/(4*gammap**2*(n+deltac-kp*v+kc*v)**2 + ((omegac*np.sqrt(2)*(r/w0)*np.exp(-(r/w0)**2))**2-4*(n-kp*v)*(n+deltac-kp*v+kc*v))**2))
+    A_LG = integrate.dblquad(f, 0, w0, lambda v: -800, lambda v: 800)#integro primeiro em v e por último em r
+    result2 = np.exp(-A_LG[0]*z)
+    result_arrayLG = np.append(result_arrayLG, [result2], axis=0)
+    
 
-
-plt.plot(x, result_array, label='Transmission Gaussian', color='r')
+plt.plot(x, result_array, label='Gaussian', color='r')
+plt.plot(x, result_arrayLG, label='LG', color='r')
 plt.xlabel('$\Delta_{p}$(MHz)')
 plt.ylabel('Transmission')
 plt.legend()
