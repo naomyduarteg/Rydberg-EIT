@@ -40,8 +40,8 @@ for i in range (-70*10**6, 70*10**6, 1*10**6):
 #------------------------------------------------------------FEIXE LG--------------------------------------------------------------------------
 #feixe LG com alargamento doppler. A integral é feita na distribuição de velocidades e no raio do feixe rosquinha
 for n in range (-70*10**6, 70*10**6, 1*10**6):
-    f = lambda v, r: r*((np.exp(-v**2/u**2)*8*N*kp*gammap*mu12**2)/(u*np.sqrt(np.pi)*epsilon0*hbar))*((n+deltac-kp*v+kc*v)**2/(4*gammap**2*(n+deltac-kp*v+kc*v)**2 + ((omegac*np.sqrt(2)*(r/w0)*np.exp(-(r/w0)**2))**2-4*(n-kp*v)*(n+deltac-kp*v+kc*v))**2))
-    A_LG = integrate.dblquad(f, 0, w0, lambda v: -800, lambda v: 800)#integro primeiro em v e por último em r
+    f = lambda v, r: 2*np.pi*r*((np.exp(-v**2/u**2)*8*N*kp*gammap*mu12**2)/(u*np.sqrt(np.pi)*epsilon0*hbar))*((n+deltac-kp*v+kc*v)**2/(4*gammap**2*(n+deltac-kp*v+kc*v)**2 + ((omegac*np.sqrt(2)*(r/w0)*np.exp(-(r/w0)**2))**2-4*(n-kp*v)*(n+deltac-kp*v+kc*v))**2))
+    A_LG = integrate.dblquad(f, 0, w0, lambda v: -np.inf, lambda v: np.inf)#integro primeiro em v e por último em r
     result2 = np.exp(-A_LG[0]*z)
     result_arrayLG = np.append(result_arrayLG, [result2], axis=0)
     
