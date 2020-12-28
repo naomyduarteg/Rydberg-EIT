@@ -14,7 +14,7 @@ c = 3*10**8
 deltac = 2*np.pi*0.1*10**6
 omegapp = 2*np.pi*0.1*10**6#para ser usado na parte analítica
 omegap = 0.1*10**6
-omegac = 30*10**6
+omegac = 50*10**6
 gammap = 2*np.pi*6.06*10**6#valor tirado do data sheet do Rb87
 g = 0
 N = 5*10**14
@@ -26,28 +26,31 @@ hbar = 1.054*10**-34
 mu12 = 3.584*10**-29
 u = 290.5 #root mean square velocity
 x = np.arange(-70*10**6, 70*10**6, 1*10**6) #\Delta_{p}
-
+w0p = 140*10**-6 #integral é feita na região da cintura do feixe de prova
+w0c = 180*10**-6
 
 result_array = np.empty((0))
 for i in range (-70*10**6, 70*10**6, 1*10**6):
-    #B = (8*N*kp*gammap*mu12**2)/(epsilon0*hbar) #constantes que entram no cálculo da absorção
-    A = integrate.quad(lambda v: ((np.exp(-v**2/u**2)*8*N*kp*gammap*mu12**2)/(u*np.sqrt(np.pi)*epsilon0*hbar))*((i+deltac-kp*v+kc*v)**2/(4*gammap**2*(i+deltac-kp*v+kc*v)**2 + (omegac**2-4*(i-kp*v)*(i+deltac-kp*v+kc*v))**2)), -500, 500)
-    #T_LG = integrate.quad(lambda t: np.exp(-B*(gammap*g**2 - g*i*(i + deltac) + g*(omegac*np.sqrt(2)*(t/w0)*np.exp(-(t/w0)**2))**2 + (i + deltac)*(i*g + gammap*(i + deltac)))/(2*((gammap*g - i*(i + deltac) + (omegac*np.sqrt(2)*(t/w0)*np.exp(-(t/w0)**2))**2)**2 + (i*g + gammap*(i + deltac))**2)))*t, 0, w0)
+    #feixe Gaussiano com alargamento doppler. A integral é feita somente na distribuição de velocidade dos átomos
+    A = integrate.quad(lambda v: ((np.exp(-v**2/u**2)*8*N*kp*gammap*mu12**2)/(u*np.sqrt(np.pi)*epsilon0*hbar))*((i+deltac-kp*v+kc*v)**2/(4*gammap**2*(i+deltac-kp*v+kc*v)**2 + (omegac**2-4*(i-kp*v)*(i+deltac-kp*v+kc*v))**2)), -np.inf, np.inf)
+  
     result = np.exp(-A[0]*z)
- 
-    #print(A)
     result_array = np.append(result_array, [result], axis=0)
-#------------------------------------------------------------FEIXE LG--------------------------------------------------------------------------
-#feixe LG com alargamento doppler. A integral é feita na distribuição de velocidades e no raio do feixe rosquinha
+    #result = A[0]
+    #--------------------------------------------------LG---------------------------------------
+    #feixe LG com alargamento doppler. A integral é feita na distribuição de velocidades e no raio do feixe rosquinha
+result_arrayLG = np.empty((0))
 for n in range (-70*10**6, 70*10**6, 1*10**6):
-    f = lambda v, r: 2*np.pi*r*((np.exp(-v**2/u**2)*8*N*kp*gammap*mu12**2)/(u*np.sqrt(np.pi)*epsilon0*hbar))*((n+deltac-kp*v+kc*v)**2/(4*gammap**2*(n+deltac-kp*v+kc*v)**2 + ((omegac*np.sqrt(2)*(r/w0)*np.exp(-(r/w0)**2))**2-4*(n-kp*v)*(n+deltac-kp*v+kc*v))**2))
-    A_LG = integrate.dblquad(f, 0, w0, lambda v: -np.inf, lambda v: np.inf)#integro primeiro em v e por último em r
-    result2 = np.exp(-A_LG[0]*z)
+    f = lambda v, r: r*((np.exp(-v**2/u**2)*8*N*kp*gammap*mu12**2)/(u*np.sqrt(np.pi)*epsilon0*hbar))*((n+deltac-kp*v+kc*v)**2/(4*gammap**2*(n+deltac-kp*v+kc*v)**2 + ((omegac*np.sqrt(2)*(r/w0c)*np.exp(-(r/w0c)**2))**2-4*(n-kp*v)*(n+deltac-kp*v+kc*v))**2))
+    A_LG = integrate.dblquad(f, 0, w0p, lambda v: -np.inf, lambda v: np.inf)#integro primeiro em v e por último em r
+    result2 = np.exp(-A_LG[0]*100000000*z)
     result_arrayLG = np.append(result_arrayLG, [result2], axis=0)
     
+    
+
 
 plt.plot(x, result_array, label='Gaussian', color='r')
-plt.plot(x, result_arrayLG, label='LG', color='r')
+plt.plot(x, result_arrayLG, label='LG', color='g')
 plt.xlabel('$\Delta_{p}$(MHz)')
 plt.ylabel('Transmission')
 plt.legend()
