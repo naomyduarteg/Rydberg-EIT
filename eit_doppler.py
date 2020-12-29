@@ -43,7 +43,7 @@ result_arrayLG = np.empty((0))
 for n in range (-70*10**6, 70*10**6, 1*10**6):
     f = lambda v, r: r*((np.exp(-v**2/u**2)*8*N*kp*gammap*mu12**2)/(u*np.sqrt(np.pi)*epsilon0*hbar))*((n+deltac-kp*v+kc*v)**2/(4*gammap**2*(n+deltac-kp*v+kc*v)**2 + ((omegac*np.sqrt(2)*(r/w0c)*np.exp(-(r/w0c)**2))**2-4*(n-kp*v)*(n+deltac-kp*v+kc*v))**2))
     A_LG = integrate.dblquad(f, 0, w0p, lambda v: -np.inf, lambda v: np.inf)#integro primeiro em v e por último em r
-    result2 = np.exp(-A_LG[0]*100000000*z)
+    result2 = np.exp(-A_LG[0]*(2/w0p**2)*z)
     result_arrayLG = np.append(result_arrayLG, [result2], axis=0)
     
     
