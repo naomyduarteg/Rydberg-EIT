@@ -32,3 +32,6 @@ zR1 = q1.imag
 w1 = np.sqrt(lambdas*zR1/np.pi)
 
 print(M_total, d_total w1)
+
+#5 cm e 20 cm dão conta. Distâncias: d1 = 0.055 + 0.1, d2 = 0.305, d3 = 0.35
+#12,5 cm e 37,5 cm dão conta também. Distâncias: d1 = 0.055 + 0.1, d2 = 0.375, d3 = 0.28
