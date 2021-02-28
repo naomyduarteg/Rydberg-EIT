@@ -1,0 +1,34 @@
+import numpy as np
+import matplotlib.pyplot as plt
+w0 = 25*10**-6
+z0 = -0.09
+lambdas = 780*10**-9
+
+d1 = 0.055 + 0.1
+d2 = 0.305
+d3 = 0.35
+d_total = d1+d2+d3 
+
+f1 = 0.05
+f2 = 0.20
+
+zR = np.pi*w0**2/lambdas
+q0 = z0 + 1j*zR
+
+M1=np.array([[1, d1],[0, 1]]) #matriz de propagação pela distância L1 até a lente 1
+
+M2=np.array([[1, 0],[-1/f1, 1]]) #matriz da lente 1
+
+M3=np.array([[1, d2],[0, 1]]) #matriz de propagação pela distância d2 até a lente 2
+
+M4=np.array([[1, 0],[-1/f2, 1]]) #matriz da lente 2
+
+M5=np.array([[1, d3],[0, 1]]) #matriz de propagação pela distância d3 até a célula
+
+M_total=M5.dot(M4).dot(M3).dot(M2).dot(M1) # calculating the global matrix
+
+q1 = (M_total[0,0]*q0 + M_total[0,1])/(M_total[1,0]*q0 + M_total[1,1])
+zR1 = q1.imag
+w1 = np.sqrt(lambdas*zR1/np.pi)
+
+print(M_total, d_total w1)
