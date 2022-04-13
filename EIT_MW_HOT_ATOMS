@@ -1,0 +1,51 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy.integrate as integrate
+
+
+c = 3*10**8 
+deltac = 0
+deltamw = 0
+gamma21 = 6*10**6
+gamma31 = 3*10**3
+gamma41 = 2*10**3
+#omegapp = 2*np.pi*0.1*10**6#para ser usado na parte analítica
+omegap = 6*10**6
+omegac = 2*10**6
+omegamw = 9.2*10**6
+phi = 2*np.pi
+#N = 2*10**14
+kp = 2*np.pi/(780*10**-9)
+kc = 2*np.pi/(480*10**-9)
+z = 7.5*10**-2 #7cm
+epsilon0 = 8.854*10**(-12)
+hbar = 1.054*10**-34
+mu12 = (3.584*10**-29)#*np.sqrt(5/28)##momento de dipolo alterado pelo campo magnetico
+m = 85*1.66*10**(-27)
+x = np.arange(-10*10**6, 10*10**6, 1*10**5) #\Delta_{p}
+kb = 1.38*10**(-23)
+T = 300
+p = 10**(5.006 + 4.857 - 4215/T)
+N = 0.7217*p/(kb*T)
+u = np.sqrt(2*kb*T/m) #root mean square velocity
+print(N, u)
+
+
+#-----------------------------COM ALARGAMENTO DOPPLER----------------------------------------  
+#FEIXE GAUSSIANO 
+
+result_arraydp = np.empty((0))
+for i in range (-10*10**6, 10*10**6, 1*10**5):
+     #feixe Gaussiano com alargamento doppler. A integral é feita somente na distribuição de velocidade dos átomos
+
+     Adp = integrate.quad(lambda v: (np.exp(-v**2/u**2)*((2*N*z*kp*(mu12**2))/(u*np.sqrt(np.pi)*epsilon0*hbar*omegap))*np.imag((1j*omegap/2)/(1j*(i + kp*v) - gamma21/2 + (omegac**2*(1j*(i + deltac + deltamw + (kp-kc)*v) - gamma41/2))/((omegamw)**2 + 4*(1j*(i + deltac + (kp-kc)*v)- gamma31/2)*(1j*(i + deltac + deltamw + (kp-kc)*v) - gamma41/2))))), -200, 200)
+     resultdp = np.exp(Adp[0]*z)
+     result_arraydp = np.append(result_arraydp, [resultdp], axis=0)  
+
+
+plt.plot(x, result_arraydp, label='Gaussian Doppler MW', color='b')
+plt.xlabel('$\Delta_{p}$(Hz)')
+plt.ylabel('Transmission')
+plt.legend()
+plt.savefig('EIT_hot_MW.pdf', format='pdf', dpi=1000, bbox_inches = 'tight')
+plt.show()
