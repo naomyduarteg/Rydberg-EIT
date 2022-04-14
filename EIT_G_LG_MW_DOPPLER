@@ -1,0 +1,75 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy.integrate as integrate
+
+
+#AQUI EU VOU CALCULAR A INTEGRAL DA TRANSMISSÃO COMO FUNÇÃO DE R, FAZENDO UM LOOP NOS VALORES DE X
+c = 3*10**8 
+deltac = 0
+deltamw = 0
+gamma21 = 6*10**6
+gamma31 = 3*10**3
+gamma41 = 2*10**3
+#omegapp = 2*np.pi*0.1*10**6#para ser usado na parte analítica
+omegap = 6*10**6
+omegac = 2*10**6
+omegamw = 5*10**6
+phi = 2*np.pi
+#N = 2*10**14
+kp = 2*np.pi/(780*10**-9)
+kc = 2*np.pi/(480*10**-9)
+z = 7.5*10**-2 #7cm
+epsilon0 = 8.854*10**(-12)
+hbar = 1.054*10**-34
+mu12 = (3.584*10**-29)#*np.sqrt(5/28)##momento de dipolo alterado pelo campo magnetico
+m = 85*1.66*10**(-27)
+x = np.arange(-10*10**6, 10*10**6, 1*10**5) #\Delta_{p}
+kb = 1.38*10**(-23)
+T = 300
+p = 10**(5.006 + 4.857 - 4215/T)
+N = 0.7217*p/(kb*T)
+u = np.sqrt(2*kb*T/m) #root mean square velocity
+print(N, u)
+w0p = 170*10**-6 #integral é feita na região da cintura do feixe de prova
+w0c = 190*10**-6
+
+A1 = x - deltac - 1j*gamma21/2 
+A2 = x - deltamw - 1j*gamma41/2
+A3 = x - 1j*gamma31/2
+Iro12 = np.imag((omegap/2)/(A1 + (omegac**2*A2)/((omegamw*(1+np.exp(1j*phi)))**2 - 4*A3*A2)))
+#Iro12 = np.imag((omegap/2)/(A1 + (omegac**2*A2)/((2*omegamw)**2 - 4*A3*A2)))
+
+# D = 4*(x + deltac)*(x + deltac + deltamw) - omegamw**2
+# Nom = -gammap*D**2
+# Den = (D*gammap)**2 + 4*(x*D - (x + deltac + deltamw)*omegac**2)**2
+A = Iro12*(2*N*kp*(mu12**2))/(epsilon0*hbar*omegap)
+T_b = np.exp((-A*z)) #transmissão do feixe gaussiano
+
+
+#-----------------------------COM ALARGAMENTO DOPPLER----------------------------------------  
+#FEIXE GAUSSIANO 
+
+result_arraydp = np.empty((0))
+for i in range (-10*10**6, 10*10**6, 1*10**5):
+     #feixe Gaussiano com alargamento doppler. A integral é feita somente na distribuição de velocidade dos átomos
+
+     Adp = integrate.quad(lambda v: (np.exp(-v**2/u**2)*((2*N*z*kp*(mu12**2))/(u*np.sqrt(np.pi)*epsilon0*hbar*omegap))*np.imag((1j*omegap/2)/(1j*(i + kp*v) - gamma21/2 + (omegac**2*(1j*(i + deltac + deltamw + (kp-kc)*v) - gamma41/2))/((omegamw)**2 + 4*(1j*(i + deltac + (kp-kc)*v)- gamma31/2)*(1j*(i + deltac + deltamw + (kp-kc)*v) - gamma41/2))))), -200, 200)
+     resultdp = np.exp(Adp[0]*z)
+     result_arraydp = np.append(result_arraydp, [resultdp], axis=0)  
+
+#FEIXE LG com alargamento doppler. A integral é feita na distribuição de velocidades e no raio do feixe rosquinha
+result_arrayLG = np.empty((0))
+for i in range (-10*10**6, 10*10**6, 1*10**5):
+    f1 = lambda v, r: r*(np.exp(-v**2/u**2)*((2*N*z*kp*(mu12**2))/(u*np.sqrt(np.pi)*epsilon0*hbar*omegap))*np.imag((1j*omegap/2)/(1j*(i + kp*v) - gamma21/2 + ((omegac*np.sqrt(2)*(r/w0c))**2*(1j*(i + deltac + deltamw + (kp-kc)*v) - gamma41/2))/((omegamw)**2 + 4*(1j*(i + deltac + (kp-kc)*v)- gamma31/2)*(1j*(i + deltac + deltamw + (kp-kc)*v) - gamma41/2)))))
+    A_LG1 = integrate.dblquad(f1, 0, w0c, lambda v: -500, lambda v: 500)#integro primeiro em v e por último em r
+    result2 = np.exp(A_LG1[0]*z*(2/w0c**2))#fator 2/w0p**2 é normalização da curva
+    result_arrayLG = np.append(result_arrayLG, [result2], axis=0)
+
+
+plt.plot(x, result_arrayLG, label='LG dopper MW', color='r')
+plt.plot(x, result_arraydp, label='Gaussian Doppler MW', color='b')
+plt.xlabel('$\Delta_{p}$(Hz)')
+plt.ylabel('Transmission')
+plt.legend()
+plt.savefig('EIT_hot_MW.pdf', format='pdf', dpi=1000, bbox_inches = 'tight')
+plt.show()
